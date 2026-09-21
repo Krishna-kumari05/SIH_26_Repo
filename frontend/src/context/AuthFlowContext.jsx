@@ -4,9 +4,27 @@ const AuthFlowContext = createContext(null);
 
 export function AuthFlowProvider({ children }) {
   const [pendingEmail, setPendingEmail] = useState(null);
+  const [otpPurpose, setOtpPurpose] = useState("signup");
 
+  const [resetToken, setResetToken] = useState(null);
+
+  function clearResetFlow() {
+    setPendingEmail(null);
+    setOtpPurpose("signup");
+    setResetToken(null);
+  }
   return (
-    <AuthFlowContext.Provider value={{ pendingEmail, setPendingEmail }}>
+    <AuthFlowContext.Provider
+      value={{
+        pendingEmail,
+        setPendingEmail,
+        otpPurpose,
+        setOtpPurpose,
+        resetToken,
+        setResetToken,
+        clearResetFlow,
+      }}
+    >
       {children}
     </AuthFlowContext.Provider>
   );

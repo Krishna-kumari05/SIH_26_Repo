@@ -69,9 +69,43 @@ export function getSystemStats() {
   });
 }
 
-
+// ---- Google authentication ---------------------------------
+// Sends the Google access token (obtained client-side via
+// @react-oauth/google's useGoogleLogin) to the backend, which is
+// responsible for verifying it with Google and finding/creating a
+// matching user. Expected response shape is IDENTICAL to normal
+// login's, so the rest of the app (UserContext, navigation) treats
+// a Google sign-in exactly like a regular one:
+//   { token: "...", user: { username, email, phone } }
 export function googleAuth({ accessToken }) {
   return request("/auth/google", {
     body: { accessToken },
+  });
+}
+
+// ---- Forgot password flow --------------------------------------
+// Three steps: request an OTP, verify it (getting back a short-lived
+// resetToken as proof the email was actually confirmed), then use
+// that token to actually set the new password. Splitting it into
+// these three calls — rather than just "email + new password" in
+// one request — is what stops someone from resetting a password on
+// an email they don't own.
+
+export function requestPasswordReset({ email }) {
+  return request("/auth/forgot-password", {
+    body: { email },
+  });
+}
+
+export function verifyResetOtp({ email, otp }) {
+  // Expected response: { resetToken: "..." }
+  return request("/auth/verify-reset-otp", {
+    body: { email, otp },
+  });
+}
+
+export function resetPassword({ email, resetToken, newPassword }) {
+  return request("/auth/reset-password", {
+    body: { email, resetToken, newPassword },
   });
 }

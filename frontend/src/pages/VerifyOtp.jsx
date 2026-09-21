@@ -1,14 +1,14 @@
 import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthCard from "../components/AuthCard";
-import { verifyOtp, resendOtp } from "../services/api";
+import { verifyOtp, resendOtp, verifyResetOtp, requestPasswordReset } from "../services/api";
 import { useAuthFlow } from "../context/AuthFlowContext";
 
 const OTP_LENGTH = 6;
 
 export default function VerifyOtp() {
   const navigate = useNavigate();
-  const { pendingEmail } = useAuthFlow();
+  const { pendingEmail, otpPurpose, setResetToken } = useAuthFlow();
   const [digits, setDigits] = useState(Array(OTP_LENGTH).fill(""));
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -61,7 +61,7 @@ export default function VerifyOtp() {
     setError("");
 
     if (!pendingEmail) {
-      navigate("/signup");
+      navigate(otpPurpose === "reset" ? "/forgot-password" : "/signup");
       return;
     }
 
@@ -73,8 +73,14 @@ export default function VerifyOtp() {
 
     setLoading(true);
     try {
-      await verifyOtp({ email: pendingEmail, otp });         //sending otp to backend
-      navigate("/login");
+      if (otpPurpose === "reset") {
+        const data = await verifyResetOtp({ email: pendingEmail, otp });
+        setResetToken(data?.resetToken);
+        navigate("/reset-password");
+      } else {
+        await verifyOtp({ email: pendingEmail, otp });         //sending otp to backend
+        navigate("/login");
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -86,7 +92,11 @@ export default function VerifyOtp() {
     if (!pendingEmail) return;
     setResendMessage("");
     try {
-      await resendOtp({ email: pendingEmail });
+      if (otpPurpose === "reset") {
+        await requestPasswordReset({ email: pendingEmail });
+      } else {
+        await resendOtp({ email: pendingEmail });
+      }
       setResendMessage("A new OTP has been sent.");
     } catch (err) {
       setError(err.message);
