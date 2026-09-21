@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import {
   PanelLeft,
   SquarePen,
@@ -40,8 +41,22 @@ export default function ChatSidebar() {
 
   return (
     <>
+      <motion.div
+        ref={sidebarRef}
+        className="chat-sidebar-shell"
+        initial={false}
+        animate={{ width: sidebarOpen ? 260 : 64 }}
+        transition={{ type: "spring", stiffness: 300, damping: 34 }}
+      >
+      <AnimatePresence initial={false}>
       {sidebarOpen ? (
-        <aside ref={sidebarRef} className="chat-sidebar chat-sidebar--expanded">
+        <motion.aside
+          key="expanded"
+          className="chat-sidebar chat-sidebar--expanded"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, transition: { duration: 0.2, delay: 0.08 } }}
+          exit={{ opacity: 0, transition: { duration: 0.12 } }}
+        >
           <div className="chat-sidebar__header">
             <button
               className="icon-btn"
@@ -85,11 +100,15 @@ export default function ChatSidebar() {
           </div>
 
           <ChatSidebarFooter expanded />
-        </aside>
+        </motion.aside>
       ) : (
-        <div
+        <motion.div
+          key="rail"
           className="chat-rail"
           onClick={() => setSidebarOpen(true)}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1, transition: { duration: 0.2, delay: 0.08 } }}
+          exit={{ opacity: 0, transition: { duration: 0.12 } }}
         >
           <button
             className="icon-btn"
@@ -112,8 +131,10 @@ export default function ChatSidebar() {
           <div className="chat-rail__spacer" />
 
           <ChatSidebarFooter expanded={false} />
-        </div>
+        </motion.div>
       )}
+      </AnimatePresence>
+      </motion.div>
 
       {searchOpen && <SearchChatModal onClose={() => setSearchOpen(false)} />}
     </>
