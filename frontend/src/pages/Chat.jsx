@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import StarsBackground from "../components/StarsBackground";
 import ChatSidebar from "../components/ChatSidebar";
 import ChatComposer from "../components/ChatComposer";
@@ -11,7 +12,7 @@ export default function Chat() {
 
   const showWelcome = !activeConversation && !engaged;
   const atBottom = engaged || !!activeConversation;
-  const composerWrapRef = useRef(null);     //helping to know , user clicked where ,inside or outside the menu
+  const composerWrapRef = useRef(null);   
 
   useEffect(() => {
     if (!engaged || activeConversation) return;
@@ -41,17 +42,31 @@ export default function Chat() {
           (atBottom ? " chat-main--bottom" : "")
         }
       >
-        {showWelcome && (
-          <div className="chat-welcome">
-            <h1 className="chat-welcome__title">Hi, How can I assist you ?</h1>
-          </div>
-        )}
+        <AnimatePresence mode="popLayout">
+          {showWelcome && (
+            <motion.div
+              key="welcome"
+              className="chat-welcome"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+            >
+              <h1 className="chat-welcome__title">Hi, How can I assist you ?</h1>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {activeConversation && <ChatMessages conversation={activeConversation} />}
 
-        <div className="chat-composer-wrap" ref={composerWrapRef}>
+        <motion.div
+          layout="position"
+          transition={{ type: "spring", stiffness: 260, damping: 30 }}
+          className="chat-composer-wrap"
+          ref={composerWrapRef}
+        >
           <ChatComposer onEngage={() => setEngaged(true)} />
-        </div>
+        </motion.div>
       </main>
     </div>
   );
