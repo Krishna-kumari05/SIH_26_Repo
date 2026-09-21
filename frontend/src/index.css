@@ -1271,10 +1271,6 @@ button {
   border-color: rgba(255, 90, 90, 0.35);
 }
 
-[data-theme="light"] .settings-modal--dashboard {
-  background: #f2f2f5;
-  border-color: rgba(0, 0, 0, 0.08);
-}
 
 .rag-modal {
   max-width: 440px;
@@ -1346,4 +1342,17 @@ button {
 .rag-card--active .rag-card__desc {
   color: rgba(255, 255, 255, 0.85);
 }
+.chat-sidebar-shell {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  overflow: hidden;
+}
 
+.chat-sidebar-shell > .chat-sidebar--expanded,
+.chat-sidebar-shell > .chat-rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}

@@ -12,6 +12,7 @@ export default function ChatComposer({ onEngage }) {
   const [modelMenuOpen, setModelMenuOpen] = useState(false);
   const attachRef = useRef(null);
   const modelMenuRef = useRef(null);
+  const inputRef = useRef(null);
 
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export default function ChatComposer({ onEngage }) {
     sendMessage(text);
     setValue("");
     setAttachedFile(null);
+    inputRef.current?.focus();
   }
 
   return (
@@ -85,12 +87,13 @@ export default function ChatComposer({ onEngage }) {
         </div>
 
         <input
+          ref={inputRef}
           className="chat-composer__input"
           placeholder="Ask questions"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onFocus={onEngage}
-          disabled={sending}
+          readOnly={sending}  
         />
         <div className="model-menu-anchor" ref={modelMenuRef}>
           <button
