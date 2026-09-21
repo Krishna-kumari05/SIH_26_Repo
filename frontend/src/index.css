@@ -1342,6 +1342,20 @@ button {
   color: #8a8fa3;
   line-height: 1.3;
 }
+.chat-sidebar-shell {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.chat-sidebar-shell > .chat-sidebar--expanded,
+.chat-sidebar-shell > .chat-rail {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
 
 .rag-card--active .rag-card__desc {
   color: rgba(255, 255, 255, 0.85);
