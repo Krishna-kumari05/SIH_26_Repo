@@ -19,14 +19,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Handles the "RAG" sidebar button.
- *
- * Endpoints:
- *   POST /api/rag/ingest          — mark a document for RAG indexing (queues a RAG_INGEST job)
- *   POST /api/rag/query           — run a retrieval-augmented query (queues a RAG_QUERY job)
- *   GET  /api/rag/documents       — list documents already submitted for indexing
- */
 @RestController
 @RequestMapping("/api/rag")
 @RequiredArgsConstructor
@@ -35,9 +27,6 @@ public class RagController {
     private final AIJobRepo aiJobRepo;
     private final DocumentRepo documentRepo;
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // POST /api/rag/ingest  →  mark document as RAG-indexed & queue ingest job
-    // ──────────────────────────────────────────────────────────────────────────
     @PostMapping("/ingest")
     public ResponseEntity<AIJobResponse> ingestDocument(
             @Valid @RequestBody RagIngestRequest request,
@@ -53,7 +42,6 @@ public class RagController {
         document.setRagIndexed(true);
         documentRepo.save(document);
 
-        // Queue a RAG_INGEST job — the AI worker picks this up and does the embedding
         AIJob job = AIJob.builder()
                 .user(user)
                 .document(document)
@@ -68,9 +56,6 @@ public class RagController {
                 .body(toResponse(job));
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // POST /api/rag/query  →  run a retrieval-augmented search query
-    // ──────────────────────────────────────────────────────────────────────────
     @PostMapping("/query")
     public ResponseEntity<AIJobResponse> queryRag(
             @Valid @RequestBody RagQueryRequest request,
@@ -99,9 +84,6 @@ public class RagController {
                 .body(toResponse(job));
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // GET /api/rag/documents  →  all documents that have been indexed
-    // ──────────────────────────────────────────────────────────────────────────
     @GetMapping("/documents")
     public List<DocumentResponse> getIndexedDocuments(Authentication authentication) {
 

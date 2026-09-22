@@ -104,7 +104,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
         } catch (Exception ignored) {
-            // Invalid token/device → continue
+            // invalid token/device → continue
             // without authentication
         }
         filterChain.doFilter(request, response);

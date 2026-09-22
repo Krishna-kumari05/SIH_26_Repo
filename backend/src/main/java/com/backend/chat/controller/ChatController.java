@@ -26,9 +26,6 @@ public class ChatController {
     private final AIJobRepo aiJobRepo;
     private final DocumentRepo documentRepo;
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // POST /api/chat/message  →  send a message / run a tool on the active chat
-    // ──────────────────────────────────────────────────────────────────────────
     @PostMapping("/message")
     public ResponseEntity<AIJobResponse> sendMessage(
             @Valid @RequestBody ChatMessageRequest request,
@@ -59,10 +56,6 @@ public class ChatController {
         return ResponseEntity.status(HttpStatus.CREATED).body(toResponse(job));
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // POST /api/chat/new  →  "New chat" sidebar button
-    // Clears active-document context client-side; server returns acknowledgement.
-    // ──────────────────────────────────────────────────────────────────────────
     @PostMapping("/new")
     public ResponseEntity<Map<String, String>> newChat(Authentication authentication) {
         // No server-side session to clear (stateless JWT); just signal OK so the
@@ -73,9 +66,6 @@ public class ChatController {
         ));
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // GET /api/chat/history  →  pageable list of past jobs for the sidebar
-    // ──────────────────────────────────────────────────────────────────────────
     @GetMapping("/history")
     public List<AIJobResponse> getChatHistory(Authentication authentication) {
 
@@ -88,9 +78,6 @@ public class ChatController {
                 .toList();
     }
 
-    // ──────────────────────────────────────────────────────────────────────────
-    // GET /api/chat/search?q=keyword  →  "Search chat" sidebar button
-    // ──────────────────────────────────────────────────────────────────────────
     @GetMapping("/search")
     public ResponseEntity<List<ChatSearchResult>> searchChat(
             @RequestParam(name = "q", defaultValue = "") String query,
