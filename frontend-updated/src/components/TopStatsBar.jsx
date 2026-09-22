@@ -3,6 +3,7 @@ import { ChevronDown, Info, Lock, Check , Bot,DatabasePlus } from "lucide-react"
 import { GiCpu} from "react-icons/gi";
 import { useChat } from "../context/ChatContext";
 import { MODEL_OPTIONS } from "./ModelMenu";
+import { motion } from "motion/react";
 
 const AVAILABLE_MODELS = [
   { label: "Reasoning", status: "Loaded" },
@@ -37,7 +38,14 @@ export default function TopStatsBar() {
   }, [open]);
 
   return (
-    <div className={"top-stats" + (sidebarOpen ? " top-stats--shifted" : "")} ref={barRef}>
+     <motion.div 
+      className="top-stats"
+      ref={barRef}
+      style={{ x: "-50%" }}
+      initial={false}
+      animate={{ marginLeft: sidebarOpen ? 98 : 0 }}
+      transition={{ type: "spring", stiffness: 300, damping: 34 }}
+      >
       <button
         type="button"
         className="top-stats__bar"
@@ -165,7 +173,7 @@ export default function TopStatsBar() {
           </div>
         </div>
       )}
-    </div>
+    </motion.div>
   );
 }
 function GaugeCard({ title, value, label, color }) {
