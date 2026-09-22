@@ -114,9 +114,15 @@ export default function Login() {
       onChange={handleChange}
     />
 
-    <Link to="/forgot-password" className="auth-form__link">
-      Forgot password?
-    </Link>
+    <div className="flex justify-end">
+      <button
+        type="button"
+        onClick={() => navigate("/forgot-password")}
+        className="text-sm text-blue-600 hover:text-blue-700"
+      >
+        Forgot Password?
+      </button>
+    </div>
 
     <div className="auth-form__divider">
       <span>Login with</span>

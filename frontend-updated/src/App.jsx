@@ -10,6 +10,8 @@ import { ChatProvider } from "./context/ChatContext";
 import { UserProvider } from "./context/UserContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { TextSizeProvider } from "./context/TextSizeContext";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 export default function App() {
   return (
@@ -22,6 +24,8 @@ export default function App() {
               <Route path="/login" element={<AuthLayout><Login /></AuthLayout>} />
               <Route path="/signup" element={<AuthLayout><Signup /></AuthLayout>} />
               <Route path="/verify-otp" element={<AuthLayout><VerifyOtp /></AuthLayout>} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route
                 path="/chat"
                 element={

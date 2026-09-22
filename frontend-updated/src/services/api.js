@@ -219,3 +219,25 @@ export function getIndexedDocuments() {
 export function getSystemStats() {
   return request("/system/stats", { method: "GET" });
 }
+
+export function requestPasswordReset({ email }) {
+  return request("/auth/forgot-password", {
+    body: { email },
+  });
+}
+
+export function verifyResetOtp({ email, otp }) {
+  return request("/auth/verify-reset-otp", {
+    body: { email, otp },
+  });
+}
+
+export function resetPassword({ email, resetToken, newPassword }) {
+  return request("/auth/reset-password", {
+    body: {
+      email,
+      resetToken,
+      newPassword,
+    },
+  });
+}
