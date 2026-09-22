@@ -106,4 +106,52 @@ public class AuthController {
                 Map.of("message", "Logged out successfully")
         );
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+
+        authService.forgotPassword(request.get("email"));
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message",
+                        "Password reset OTP sent to your email."
+                )
+        );
+    }
+
+    @PostMapping("/verify-reset-otp")
+    public ResponseEntity<?> verifyResetOtp(@RequestBody Map<String, String> request) {
+
+        String resetToken = authService.verifyPasswordResetOtp(
+                request.get("email"),
+                request.get("otp")
+        );
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message",
+                        "OTP verified successfully.",
+                        "resetToken",
+                        resetToken
+                )
+        );
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> request) {
+
+        authService.resetPassword(
+                request.get("email"),
+                request.get("resetToken"),
+                request.get("newPassword")
+        );
+
+        return ResponseEntity.ok(
+                Map.of(
+                        "message",
+                        "Password reset successfully."
+                )
+        );
+    }
 }

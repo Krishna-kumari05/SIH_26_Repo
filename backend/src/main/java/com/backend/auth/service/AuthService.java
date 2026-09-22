@@ -11,6 +11,8 @@ import com.backend.user.entity.User;
 import com.backend.user.entity.UserDevice;
 import com.backend.user.repo.UserDeviceRepo;
 import com.backend.user.repo.UserRepo;
+import com.backend.auth.entity.PasswordResetToken;
+import com.backend.auth.repo.PasswordResetTokenRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,9 @@ public class AuthService {
     private final UserRepo userRepo;
     private final UserDeviceRepo userDeviceRepo;
     private final RefreshTokenRepo refreshTokenRepo;
+
+    private final RefreshTokenRepo refreshTokenRepo;
+    private final PasswordResetTokenRepo passwordResetTokenRepo;
 
     private final OtpService otpService;
     private final JwtService jwtService;
@@ -325,5 +330,112 @@ public class AuthService {
 
         storedToken.setRevoked(true);
         refreshTokenRepo.save(storedToken);
+    }
+
+    @Transactional
+    public void forgotPassword(String email) {
+
+        email = email.trim().toLowerCase();
+
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found")
+                );
+
+        if (!user.isEmailVerified() || !user.isEnabled()) {
+            throw new RuntimeException("Account is not active");
+        }
+
+        otpService.sendOtp(email, OtpPurpose.PASSWORD_RESET);
+    }
+
+
+    @Transactional
+    public String verifyPasswordResetOtp(String email, String otp) {
+
+        email = email.trim().toLowerCase();
+
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found")
+                );
+
+        if (!user.isEmailVerified() || !user.isEnabled()) {
+            throw new RuntimeException("Account is not active");
+        }
+
+        boolean valid = otpService.verifyOtp(email, otp, OtpPurpose.PASSWORD_RESET);
+
+        if (!valid) {
+            throw new RuntimeException("Invalid or expired OTP");
+        }
+
+        String resetToken = generateRefreshToken();
+
+        String tokenHash = hashRefreshToken(resetToken);
+
+        PasswordResetToken passwordResetToken = PasswordResetToken.builder()
+                        .email(email)
+                        .tokenHash(tokenHash)
+                        .expiresAt(LocalDateTime.now().plusMinutes(15))
+                        .used(false)
+                        .build();
+
+        passwordResetTokenRepo.save(passwordResetToken);
+
+        return resetToken;
+    }
+
+    @Transactional
+    public void resetPassword(String email, String resetToken, String newPassword) {
+
+        email = email.trim().toLowerCase();
+
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found")
+                );
+
+        if (!user.isEmailVerified() || !user.isEnabled()) {
+            throw new RuntimeException("Account is not active");
+        }
+
+        String tokenHash = hashRefreshToken(resetToken);
+
+        PasswordResetToken token = passwordResetTokenRepo
+                        .findByTokenHashAndUsedFalse(tokenHash)
+                        .orElseThrow(() ->
+                                new RuntimeException("Invalid reset token")
+                        );
+
+        if (!token.getEmail().equals(email)) {
+            throw new RuntimeException("Invalid reset token");
+        }
+
+        if (token.getExpiresAt().isBefore(LocalDateTime.now())) {
+            token.setUsed(true);
+            passwordResetTokenRepo.save(token);
+
+            throw new RuntimeException("Reset token expired");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepo.save(user);
+
+        token.setUsed(true);
+        passwordResetTokenRepo.save(token);
+    }
+
+
+    private String generateResetToken() {
+
+        byte[] bytes = new byte[32];
+
+        secureRandom.nextBytes(bytes);
+
+        return java.util.Base64
+                .getUrlEncoder()
+                .withoutPadding()
+                .encodeToString(bytes);
     }
 }
