@@ -5,6 +5,7 @@ import ChatComposer from "../components/ChatComposer";
 import TopStatsBar from "../components/TopStatsBar";
 import ToolsButton from "../components/ToolsButton";
 import { useChat } from "../context/ChatContext";
+import { AnimatePresence, motion } from "motion/react";
 
 export default function Chat() {
   const { activeConversation, sidebarOpen, engaged, setEngaged } = useChat();
@@ -34,6 +35,7 @@ export default function Chat() {
       <ToolsButton />
       <ChatSidebar />
 
+      
       <main
         className={
           "chat-main" +
@@ -41,17 +43,31 @@ export default function Chat() {
           (atBottom ? " chat-main--bottom" : "")
         }
       >
-        {showWelcome && (
-          <div className="chat-welcome">
-            <h1 className="chat-welcome__title">Hi, How can I assist you ?</h1>
-          </div>
-        )}
+        <AnimatePresence mode="popLayout">
+          {showWelcome && (
+            <motion.div
+              key="welcome"
+              className="chat-welcome"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.25 }}
+            >
+              <h1 className="chat-welcome__title">Hi, How can I assist you ?</h1>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {activeConversation && <ChatMessages conversation={activeConversation} />}
 
-        <div className="chat-composer-wrap" ref={composerWrapRef}>
+        <motion.div
+          layout="position"
+          transition={{ type: "spring", stiffness: 260, damping: 30 }}
+          className="chat-composer-wrap"
+          ref={composerWrapRef}
+        >
           <ChatComposer onEngage={() => setEngaged(true)} />
-        </div>
+        </motion.div>
       </main>
     </div>
   );
